@@ -1,0 +1,6 @@
+{
+  "name": "NCLEX-RN Prep Agent",
+  "description": "An adaptive NCLEX-RN exam preparation tool using client-side logic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
