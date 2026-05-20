@@ -223,14 +223,13 @@ fun WelcomeScreen(onStart: () -> Unit) {
 @Composable
 fun TestSimulationScreen(state: AppStateData, onSubmit: (Int) -> Unit) {
     var selectedOption by remember { mutableStateOf<Int?>(null) }
-    val currentQ = state.currentQuestion ?: return
+    val currentQ = remember(state.currentQuestion?.id) { state.currentQuestion } ?: return
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
-            .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -266,7 +265,10 @@ fun TestSimulationScreen(state: AppStateData, onSubmit: (Int) -> Unit) {
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             itemsIndexed(currentQ.options) { index, option ->
                 val isSelected = selectedOption == index
                 Card(
@@ -302,7 +304,7 @@ fun TestSimulationScreen(state: AppStateData, onSubmit: (Int) -> Unit) {
             }
         }
         
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(16.dp))
         
         Button(
             onClick = { selectedOption?.let { onSubmit(it) } },
@@ -317,15 +319,14 @@ fun TestSimulationScreen(state: AppStateData, onSubmit: (Int) -> Unit) {
 
 @Composable
 fun RationaleScreen(state: AppStateData, onNext: () -> Unit) {
-    val q = state.currentQuestion ?: return
-    val selected = state.selectedOptionIndex ?: return
+    val q = remember { state.currentQuestion } ?: return
+    val selected = remember { state.selectedOptionIndex } ?: return
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
-            .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         Row(
              modifier = Modifier.fillMaxWidth(),
@@ -444,8 +445,7 @@ fun PerformanceDashboard(state: AppStateData, onRestart: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp)
-            .windowInsetsPadding(WindowInsets.safeDrawing),
+            .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         Card(
