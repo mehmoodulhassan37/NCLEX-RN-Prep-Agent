@@ -16,13 +16,25 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
-        java-version: '21' # Upgraded to handle modern 2026 Android builds
+        java-version: '21'
 
     - name: Setup Gradle Build Engine
       uses: gradle/actions/setup-gradle@v4
 
-    - name: Compile and Build Debug APK Natively
-      run: gradle assembleDebug --stacktrace # Appended stacktrace for deep diagnostic insight
+    - name: Compile and Intercept Errors
+      run: |
+        echo "Starting Android Compilation Process..."
+        gradle assembleDebug --stacktrace > compilation_log.txt 2>&1 || EXIT_CODE=$?
+        
+        if [ ! -z "$EXIT_CODE" ] && [ "$EXIT_CODE" -ne 0 ]; then
+          echo "### ❌ NCLEX App Compilation Failed" >> $GITHUB_STEP_SUMMARY
+          echo "Mehmood, the compiler found an issue inside the app code. Here is the exact error diagnostic:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
+          grep -E "e: |error:|FAILED" compilation_log.txt | tail -n 25 >> $GITHUB_STEP_SUMMARY || tail -n 30 compilation_log.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "Please copy the text inside the box above and send it to your assistant to fix the code structure." >> $GITHUB_STEP_SUMMARY
+          exit $EXIT_CODE
+        fi
 
     - name: Upload Finished APK Artifact
       if: success()
